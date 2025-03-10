@@ -1,11 +1,5 @@
 package com.audition.integration;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
 import com.audition.common.exception.SystemException;
 import com.audition.model.AuditionPostComment;
 import java.util.List;
@@ -22,6 +16,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
 @SpringBootTest
 @NoArgsConstructor
 class AuditionCommentIntegrationClientTest {
@@ -34,13 +34,9 @@ class AuditionCommentIntegrationClientTest {
 
 
     public static final AuditionPostComment POST_COMMENT_1 = new AuditionPostComment(1, 1, "Mock title1",
-        "moch@email.com",
-        "Mock description comment1");
+        "moch@email.com", "Mock description comment1");
     public static final AuditionPostComment POST_COMMENT_2 = new AuditionPostComment(1, 2, "Mock title2",
-        "moche@email.com",
-        "Mock description comment2");
-    public static final String POST_BY_ID_ENDPOINT = "https://jsonplaceholder.typicode.com/posts/{id}";
-
+        "moche@email.com", "Mock description comment2");
     public static final String COMMENT_POST_ID = "https://jsonplaceholder.typicode.com/posts/{id}/comments";
 
 
@@ -48,12 +44,8 @@ class AuditionCommentIntegrationClientTest {
     void testGetCommentsForPost() {
 
         final AuditionPostComment[] postComments = {POST_COMMENT_1, POST_COMMENT_2};
-        final ResponseEntity re = new ResponseEntity<>(postComments, HttpStatus.OK);
-        when(
-            restTemplate.getForEntity(COMMENT_POST_ID,
-                AuditionPostComment[].class,
-                1))
-            .thenReturn(re);
+        when(restTemplate.getForEntity(COMMENT_POST_ID, AuditionPostComment[].class, 1)).thenReturn(
+            new ResponseEntity<>(postComments, HttpStatus.OK));
         final List<AuditionPostComment> commentsList = auditionCommentIntegrationClient.getCommentsForPost(1);
         assertThat(commentsList).isNotNull();
         assertThat(commentsList.size()).isEqualTo(2);
@@ -64,51 +56,31 @@ class AuditionCommentIntegrationClientTest {
 
         final AuditionPostComment[] postComments = {};
 
-        final ResponseEntity re = new ResponseEntity<>(postComments, HttpStatus.OK);
-        when(
-            restTemplate.getForEntity(COMMENT_POST_ID,
-                AuditionPostComment[].class,
-                1))
-            .thenReturn(re);
-        assertThrows(SystemException.class, () -> {
-            auditionCommentIntegrationClient.getCommentsForPost(1);
-        });
+        when(restTemplate.getForEntity(COMMENT_POST_ID, AuditionPostComment[].class, 1)).thenReturn(
+            new ResponseEntity<>(postComments, HttpStatus.OK));
+        assertThrows(SystemException.class, () -> auditionCommentIntegrationClient.getCommentsForPost(1));
     }
 
     @Test
     void testGetCommentsForNullPostCommentsReturnSystemException() {
 
-        final ResponseEntity re = new ResponseEntity<>(null, HttpStatus.OK);
-        when(
-            restTemplate.getForEntity(COMMENT_POST_ID,
-                AuditionPostComment[].class,
-                1))
-            .thenReturn(re);
-        assertThrows(SystemException.class, () -> {
-            auditionCommentIntegrationClient.getCommentsForPost(1);
-        });
+        when(restTemplate.getForEntity(COMMENT_POST_ID, AuditionPostComment[].class, 1)).thenReturn(
+            new ResponseEntity<>(HttpStatus.OK));
+        assertThrows(SystemException.class, () -> auditionCommentIntegrationClient.getCommentsForPost(1));
     }
 
     @Test
     void testGetCommentsForPostPostIdNotFound() {
-        when(restTemplate.getForEntity(COMMENT_POST_ID,
-            AuditionPostComment[].class,
-            1)).thenThrow(
+        when(restTemplate.getForEntity(COMMENT_POST_ID, AuditionPostComment[].class, 1)).thenThrow(
             new HttpClientErrorException(HttpStatus.NOT_FOUND));
-        assertThrows(SystemException.class, () -> {
-            auditionCommentIntegrationClient.getCommentsForPost(1);
-        });
+        assertThrows(SystemException.class, () -> auditionCommentIntegrationClient.getCommentsForPost(1));
     }
 
     @Test
     void testGetCommentsForPostBadRequest() {
-        when(restTemplate.getForEntity(COMMENT_POST_ID,
-            AuditionPostComment[].class,
-            1)).thenThrow(
+        when(restTemplate.getForEntity(COMMENT_POST_ID, AuditionPostComment[].class, 1)).thenThrow(
             new HttpClientErrorException(HttpStatus.BAD_REQUEST));
-        assertThrows(SystemException.class, () -> {
-            auditionCommentIntegrationClient.getCommentsForPost(1);
-        });
+        assertThrows(SystemException.class, () -> auditionCommentIntegrationClient.getCommentsForPost(1));
     }
 
     @Test
@@ -118,8 +90,7 @@ class AuditionCommentIntegrationClientTest {
 
         final Map<String, Object> queryParam = new ConcurrentHashMap<>();
         when(restTemplate.getForEntity(ArgumentMatchers.any(), eq(AuditionPostComment[].class))).thenReturn(
-            new ResponseEntity<>(postComments,
-                HttpStatus.OK));
+            new ResponseEntity<>(postComments, HttpStatus.OK));
         final List<AuditionPostComment> commentList = auditionCommentIntegrationClient.getComments(queryParam);
         assertThat(commentList).isNotNull();
         assertThat(commentList.size()).isEqualTo(2);
@@ -129,8 +100,7 @@ class AuditionCommentIntegrationClientTest {
     void testGetCommentsEmptyResponseBodyReturnSystemException() {
         final AuditionPostComment[] postComments = {};
         when(restTemplate.getForEntity(ArgumentMatchers.any(), eq(AuditionPostComment[].class))).thenReturn(
-            new ResponseEntity<>(postComments,
-                HttpStatus.OK));
+            new ResponseEntity<>(postComments, HttpStatus.OK));
 
         assertThrows(SystemException.class,
             () -> auditionCommentIntegrationClient.getComments(new ConcurrentHashMap<>()));
@@ -139,8 +109,7 @@ class AuditionCommentIntegrationClientTest {
     @Test
     void testGetCommentsNullResponseBodyReturnSystemException() {
         when(restTemplate.getForEntity(ArgumentMatchers.any(), eq(AuditionPostComment[].class))).thenReturn(
-            new ResponseEntity<>(null,
-                HttpStatus.OK));
+            new ResponseEntity<>(HttpStatus.OK));
 
         assertThrows(SystemException.class,
             () -> auditionCommentIntegrationClient.getComments(new ConcurrentHashMap<>()));

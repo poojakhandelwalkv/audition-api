@@ -1,8 +1,5 @@
 package com.audition.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
 import com.audition.integration.AuditionCommentIntegrationClient;
 import com.audition.integration.AuditionPostIntegrationClient;
 import com.audition.model.AuditionPost;
@@ -15,6 +12,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @NoArgsConstructor
